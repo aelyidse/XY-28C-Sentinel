@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and databases
+*.log
+*.sqlite
+
+# Local development
+.env
+.env.local
+.env.*.local
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+.coverage
+htmlcov/
+
+# Simulation outputs
+sim_results/
+*.sim
+
+# CAD files
+*.step
+*.stp
+*.stl
+*.obj
+*.mtl
+
+# Sensitive Data
+**/secrets/
+**/credentials/
+*.key
+*.pem
+*.crt
+
+# Build outputs
+**/build/
+**/dist/
+**/out/
+
+# Documentation builds
+docs/_build/
+
+# Temporary files
+*.tmp
+*~
