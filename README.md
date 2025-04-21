@@ -1,4 +1,4 @@
-# XY-28C-Sentinel Software Suite
+# XY-28C : Hypersonic, stealthy electromagnetic unmanned combat aerial platforms
 
 Advanced software suite for the design, modeling, prototyping, and manufacturing of the XY-28C-Sentinel, a next-generation electromagnetic Unmanned Combat Aerial Vehicle (UCAV).
 
