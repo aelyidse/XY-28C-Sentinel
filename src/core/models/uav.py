@@ -34,6 +34,8 @@ class UAVSystem:
         self.jamming_simulator = JammingSimulator(self.em_sensor, event_manager)
         self.counter_jamming = CounterJammingSystem(self.secure_comms, self.em_sensor)
         self.deception_system = DeceptionSystem(self)
+        self.secure_comm = SecureCommunicationManager(self.ionization_model)
+        self.anti_hijack = AntiHijackManager(self.secure_comm)
         
     async def monitor_jamming(self) -> None:
         """Continuously monitor for jamming and activate countermeasures"""
@@ -571,7 +573,19 @@ async def _initiate_thermal_recovery_protocol(self, thermal_data: Dict[str, Any]
     ))
 
     async def execute_command(self, command: Dict[str, Any]) -> bool:
-        """Execute command after blockchain validation"""
+        """Execute command after security validation"""
+        # Anti-hijacking check
+        if not await self.anti_hijack.monitor_commands(command):
+            await self.event_manager.publish(SystemEvent(
+                event_type=SystemEventType.SECURITY_VIOLATION,
+                component_id="uav_system",
+                data={"command": command, "reason": "Anti-hijacking violation"},
+                timestamp=datetime.now(),
+                priority=0  # Highest priority
+            ))
+            return False
+            
+        # Proceed with existing blockchain validation
         # Create and validate transaction
         tx = self.blockchain.create_transaction(command)
         

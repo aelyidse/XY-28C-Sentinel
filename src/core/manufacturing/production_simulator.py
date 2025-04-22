@@ -54,3 +54,37 @@ class ProductionSimulator:
             },
             'quality_metrics': self._calculate_quality_metrics(params)
         }
+    
+    async def _simulate_machining(self, params: Dict) -> Dict[str, Any]:
+        """Simulate CNC machining process"""
+        # Calculate machining time
+        material_removal_rate = params['feed_rate'] * params['depth_of_cut'] * params['width_of_cut']
+        machining_time = params['material_volume'] / material_removal_rate
+        
+        # Predict surface finish
+        surface_roughness = self._calculate_surface_roughness(params)
+        
+        # Calculate tool wear
+        tool_wear = self._calculate_tool_wear(params, machining_time)
+        
+        return {
+            'machining_time': machining_time,
+            'surface_quality': {
+                'roughness': surface_roughness,
+                'tolerance': self._calculate_tolerance(params)
+            },
+            'tool_wear': tool_wear,
+            'quality_metrics': self._calculate_quality_metrics(params)
+        }
+
+    def _calculate_surface_roughness(self, params: Dict) -> float:
+        """Calculate predicted surface roughness"""
+        # Simplified surface roughness calculation
+        return (params['feed_rate'] ** 2) / (8 * params['tool_radius']) + \
+               params['material_hardness'] * 0.001
+
+    def _calculate_tool_wear(self, params: Dict, machining_time: float) -> float:
+        """Calculate tool wear percentage"""
+        # Simplified tool wear model
+        return (params['material_hardness'] * machining_time) / \
+               (params['tool_material'] * 1000)

@@ -9,6 +9,7 @@ class ProductionManager:
         self.quality = QualityPredictor()
         self.scheduler = ProductionScheduler()
         self.supply_chain = SupplyChainModel()
+        self.quality_control = QualityControlManager(event_manager)  # Add this line
         
     async def run_production_simulation(self, config: Dict) -> Dict[str, Any]:
         """Run complete production simulation"""
@@ -35,9 +36,16 @@ class ProductionManager:
             config['demand']
         )
         
+        # Add quality validation
+        quality_validation = await asyncio.gather(*[
+            self.quality_control.validate_quality(p['type'], p['params'], pr)
+            for p, pr in zip(config['processes'], process_results)
+        ])
+        
         return {
             'process_results': process_results,
             'quality_predictions': quality_results,
+            'quality_validation': quality_validation,  # Add this line
             'schedule': schedule,
             'supply_chain': supply_chain
         }

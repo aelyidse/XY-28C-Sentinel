@@ -3,10 +3,16 @@ from typing import Dict, List
 from ..config.system_config import SystemConfig, SystemMode
 from ..events.event_manager import EventManager
 from ..interfaces.system_component import SystemComponent
+from ..utils.error_handler import ErrorHandler, SentinelError, ErrorCategory, ErrorSeverity
 
 class SystemController:
     async def start(self) -> None:
         self._running = True
+        self.error_handler = ErrorHandler(self.event_manager)
+        
+        # Register error handlers
+        self._register_error_handlers()
+        
         tasks = [
             self.event_manager.process_events(),
             self._update_components(),
@@ -14,6 +20,45 @@ class SystemController:
             self._monitor_consensus()  # Add consensus monitoring
         ]
         await asyncio.gather(*tasks)
+
+    def _register_error_handlers(self) -> None:
+        """Register error handlers for different categories"""
+        self.error_handler.register_handler(
+            ErrorCategory.NETWORK, 
+            self._handle_network_error
+        )
+        self.error_handler.register_handler(
+            ErrorCategory.BLOCKCHAIN, 
+            self._handle_blockchain_error
+        )
+        
+        # Register recovery strategies
+        self.error_handler.register_recovery_strategy(
+            ConnectionError, 
+            self._recover_connection
+        )
+
+    async def _handle_network_error(self, error: SentinelError) -> None:
+        """Handle network-related errors"""
+        if error.severity >= ErrorSeverity.ERROR:
+            # Try to reconnect
+            await self._attempt_reconnect()
+            
+    async def _handle_blockchain_error(self, error: SentinelError) -> None:
+        """Handle blockchain-related errors"""
+        if error.severity >= ErrorSeverity.ERROR:
+            # Try to recover chain
+            await self._recover_chain()
+            
+    async def _recover_connection(self, error: Exception) -> None:
+        """Recovery strategy for connection errors"""
+        # Implementation of connection recovery
+        pass
+        
+    async def _attempt_reconnect(self) -> None:
+        """Attempt to reconnect to network"""
+        # Implementation of reconnection logic
+        pass
 
     async def _monitor_consensus(self) -> None:
         """Monitor blockchain consensus status"""
@@ -82,12 +127,21 @@ class SystemController:
                 
         async def _update_components(self) -> None:
             while self._running:
-                update_tasks = [
-                    component.update() 
-                    for component in self.components.values()
-                ]
-                await asyncio.gather(*update_tasks)
-                await asyncio.sleep(1.0 / self.config.ai_processing_rate)
+                update_tasks = []
+                for component in self.components.values():
+                    try:
+                        update_tasks.append(component.update())
+                    except Exception as e:
+                        await self.error_handler.handle_error(e, component.component_id)
+                
+                try:
+                    await asyncio.gather(*update_tasks)
+                    await asyncio.sleep(1.0 / self.config.ai_processing_rate)
+                except Exception as e:
+                    await self.error_handler.handle_error(
+                        e, 
+                        "system_controller"
+                    )
         self.audit_trail = AuditTrailManager(self.blockchain_network.blockchain)
 
     async def _handle_event(self, event: SystemEvent) -> None:
