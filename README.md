@@ -1,6 +1,6 @@
-# XY-28C Sentinel SDK
+# XY-28C : Hypersonic electromagnetic UCAV software Development Kit
 
-**Software Development Kit for Prototyping Next-Generation Hypersonic Stealth UCAVs**
+**Software Development Kit for Prototyping Next-Generation electromagnetic Stealth UCAVs**
 
 This advanced software suite provides comprehensive tools for the design, modeling, prototyping, manufacturing, and testing of the XY-28C Sentinel, a next-generation hypersonic stealth Unmanned Combat Aerial Vehicle (UCAV) featuring cutting-edge electromagnetic capabilities, quantum sensing, and advanced propulsion systems.
 
